@@ -57,6 +57,7 @@ const reactor_cli: webpack.Configuration = {
     reactor: './src/reactor.ts',
   },
   externals: {
+    electron: 'commonjs2 electron',
     webpack: 'commonjs2 webpack',
     npm: 'commonjs2 npm',
     'csp-html-webpack-plugin': 'commonjs2 csp-html-webpack-plugin',

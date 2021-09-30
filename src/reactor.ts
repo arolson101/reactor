@@ -55,6 +55,10 @@ program
     const config = configFcn(null, { mode: 'production' })
     config.output!.path = path.resolve(process.cwd(), buildFolder)
 
+    const electronPackageJson = path.join(path.dirname(__non_webpack_require__.resolve('electron')), 'package.json')
+    const ev = fs.readFileSync(electronPackageJson, { encoding: 'utf-8' })
+    const electronVersion = JSON.parse(ev).version
+
     // run compiler
     log(chalk.blue('compiling sources'))
     await new Promise<void>((resolve, reject) =>
@@ -67,10 +71,10 @@ program
         const info = stats?.toJson()
 
         if (stats?.hasErrors()) {
-          for(const error of info!.errors || []) {
+          for (const error of info!.errors || []) {
             console.error(error.stack)
           }
-          reject("compilation errors")
+          reject('compilation errors')
           return
         }
 
@@ -97,7 +101,13 @@ program
     fs.writeFileSync(path.join(buildFolder, 'package.json'), JSON.stringify(newpkg, null, '  '))
 
     log(chalk.blue('packaging app'))
-    await printAndExec('electron-packager', buildFolder, '--out=dist', '--overwrite')
+    await printAndExec(
+      'electron-packager',
+      buildFolder,
+      `--electronVersion=${electronVersion}`,
+      '--out=dist',
+      '--overwrite',
+    )
   })
 
 const validateLocation = () => {
