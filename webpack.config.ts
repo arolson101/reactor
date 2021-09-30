@@ -14,6 +14,7 @@ const baseConfig: webpack.Configuration = {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
+    // devtoolModuleFilenameTemplate: '[absolute-resource-path]',
   },
 }
 
@@ -28,7 +29,7 @@ const electron_main_dev: webpack.Configuration = {
   output: {
     ...baseConfig.output,
     filename: '[name].dev.js',
-    devtoolModuleFilenameTemplate: '[absolute-resource-path]',
+    // devtoolModuleFilenameTemplate: '[absolute-resource-path]',
   },
   externals: {
     express: 'commonjs2 express',

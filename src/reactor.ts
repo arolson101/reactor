@@ -67,7 +67,9 @@ program
         const info = stats?.toJson()
 
         if (stats?.hasErrors()) {
-          info!.errors?.map(console.error)
+          for(const error of info!.errors || []) {
+            console.error(error.stack)
+          }
           reject("compilation errors")
           return
         }
