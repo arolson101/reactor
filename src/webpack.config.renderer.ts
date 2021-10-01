@@ -28,6 +28,19 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
       path: path.resolve(process.cwd(), 'build', 'dev'),
       devtoolModuleFilenameTemplate: mode == 'development' ? '[absolute-resource-path]' : undefined,
     },
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+        maxInitialRequests: Infinity,
+        minSize: 0,
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'renderer-vendor',
+          },
+        },
+      },
+    },
 
     plugins: [
       new HtmlWebpackPlugin({
