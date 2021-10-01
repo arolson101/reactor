@@ -1,3 +1,5 @@
+import 'source-map-support/register'
+
 import { Command } from 'commander'
 import fs from 'fs'
 import chalk from 'chalk'
@@ -7,7 +9,8 @@ import util from 'util'
 import webpack from 'webpack'
 import configFcn from './webpack.config.renderer'
 
-const packageName = '@ar0/reactor'
+import pkg from '../package.json'
+const packageName = pkg.name as 'packageName'
 
 interface PackageJson {
   devDependencies?: {
@@ -29,19 +32,24 @@ const exec = util.promisify(npm.commands.exec)
 const reactor_dist = path.dirname(__filename)
 
 const program = new Command()
-program
+
+program.version(pkg.version)
+
+const debug = program
   .command('debug')
+  .allowUnknownOption()
   .description('start development mode- runs electron with embedded webpack server')
   .action(async () => {
     await npm.load()
     validateLocation()
 
     const script = path.join(reactor_dist, 'main.dev.js')
-    await printAndExec('electron', script)
+    await printAndExec('electron', script, ...debug.args)
   })
 
-program
+const build = program
   .command('build')
+  .allowUnknownOption()
   .description('builds package for distribution')
   .action(async () => {
     await npm.load()
@@ -107,6 +115,7 @@ program
       `--electronVersion=${electronVersion}`,
       '--out=dist',
       '--overwrite',
+      ...build.args,
     )
   })
 
