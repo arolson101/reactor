@@ -7,11 +7,16 @@ import webpack from 'webpack'
 
 const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none' }): webpack.Configuration => {
   const pkg = JSON.parse(fs.readFileSync('package.json', { encoding: 'utf-8' }))
+  const reactor_path = path.dirname(path.dirname(__filename))
 
   return {
     target: 'electron-renderer',
     entry: {
-      renderer: './src/renderer.tsx',
+      app: './src/index.ts',
+      renderer: {
+        dependOn: 'app',
+        import: path.join(reactor_path, 'src', 'renderer.tsx'),
+      },
     },
 
     mode: mode,
