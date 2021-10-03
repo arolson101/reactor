@@ -5,6 +5,8 @@ const loadURL = electronServe({ directory: '.' })
 
 async function createWindow() {
   if (process.env.NODE_ENV === 'development') {
+    process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
+
     const {
       default: installExtension,
       REDUX_DEVTOOLS,
@@ -40,28 +42,28 @@ async function createWindow() {
   })
 
   if (process.env.NODE_ENV === 'development') {
-    const { default: express } = await import('express')
     const { default: webpack } = await import('webpack')
-    const { default: middleware } = await import('webpack-dev-middleware')
+    const { default: WebpackDevServer } = await import('webpack-dev-server')
     const { default: configFcn } = await import('./webpack.config.renderer')
 
     const config = configFcn(null, { mode: 'development' })
     const compiler = webpack(config)
 
-    const app = express()
     const port = 3000
-
-    app.use(
-      middleware(compiler, {
-        writeToDisk: true,
-      }),
+    const wds = new WebpackDevServer(
+      {
+        hot: true,
+        port,
+        devMiddleware: { writeToDisk: (filename: string) => filename.indexOf('.hot-update.') === -1 },
+      },
+      compiler,
     )
 
-    app.listen(port, () => {
-      const url = `http://localhost:${port}`
-      console.log(`Example app listening at ${url}`)
-      mainWindow.loadURL(url)
-    })
+    await wds.start()
+
+    const url = `http://localhost:${port}`
+    console.log(`listening at ${url}`)
+    mainWindow.loadURL(url)
   } else {
     await loadURL(mainWindow)
   }

@@ -2,10 +2,19 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 interface AppExports {
-  App: React.ComponentType
+  default: React.ComponentType
 }
 
-declare var __webpack_require__: any
-const { App } = __webpack_require__('./src/index.ts') as AppExports
+const render = () => {
+  const { default: App } = require('./App') as AppExports
+  ReactDOM.render(<App />, document.getElementById('root'))
+}
 
-ReactDOM.render(<App />, document.getElementById('root'))
+render()
+
+if (module.hot) {
+  module.hot.accept('./App', function () {
+    console.log('Accepting the updated module!')
+    render()
+  })
+}

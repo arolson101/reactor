@@ -1,5 +1,5 @@
-import webpack from 'webpack'
 import path from 'path'
+import webpack from 'webpack'
 
 const baseConfig: webpack.Configuration = {
   mode: 'production',
@@ -16,6 +16,17 @@ const baseConfig: webpack.Configuration = {
     path: path.resolve(__dirname, 'dist'),
     // devtoolModuleFilenameTemplate: '[absolute-resource-path]',
   },
+  externals: {
+    electron: 'commonjs2 electron',
+    webpack: 'commonjs2 webpack',
+    npm: 'commonjs2 npm',
+    'csp-html-webpack-plugin': 'commonjs2 csp-html-webpack-plugin',
+    'html-webpack-plugin': 'commonjs2 html-webpack-plugin',
+    'inject-body-webpack-plugin': 'commonjs2 inject-body-webpack-plugin',
+    'webpack-dev-server': 'commonjs2 webpack-dev-server',
+    'fork-ts-checker-webpack-plugin': 'commonjs2 fork-ts-checker-webpack-plugin',
+    'react-refresh-typescript': 'commonjs2 react-refresh-typescript',
+  },
 }
 
 const electron_main_dev: webpack.Configuration = {
@@ -30,14 +41,6 @@ const electron_main_dev: webpack.Configuration = {
     ...baseConfig.output,
     filename: '[name].dev.js',
     // devtoolModuleFilenameTemplate: '[absolute-resource-path]',
-  },
-  externals: {
-    express: 'commonjs2 express',
-    webpack: 'commonjs2 webpack',
-    'webpack-dev-middleware': 'commonjs2 webpack-dev-middleware',
-    'csp-html-webpack-plugin': 'commonjs2 csp-html-webpack-plugin',
-    'html-webpack-plugin': 'commonjs2 html-webpack-plugin',
-    'inject-body-webpack-plugin': 'commonjs2 inject-body-webpack-plugin',
   },
 }
 
@@ -56,17 +59,7 @@ const reactor_cli: webpack.Configuration = {
   entry: {
     reactor: './src/reactor.ts',
   },
-  externals: {
-    electron: 'commonjs2 electron',
-    webpack: 'commonjs2 webpack',
-    npm: 'commonjs2 npm',
-    'csp-html-webpack-plugin': 'commonjs2 csp-html-webpack-plugin',
-    'html-webpack-plugin': 'commonjs2 html-webpack-plugin',
-    'inject-body-webpack-plugin': 'commonjs2 inject-body-webpack-plugin',
-  },
-  plugins: [
-    new webpack.BannerPlugin({ banner: '#!/usr/bin/env node', raw: true }),
-  ],
+  plugins: [new webpack.BannerPlugin({ banner: '#!/usr/bin/env node', raw: true })],
 }
 
 export default [electron_main_dev, electron_main_prod, reactor_cli]

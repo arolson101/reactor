@@ -30,6 +30,8 @@ const fail = (msg: string) => {
 const exec = util.promisify(npm.commands.exec)
 
 const reactor_dist = path.dirname(__filename)
+const reactor_folder = path.dirname(reactor_dist)
+const reactor_src = path.join(path.dirname(reactor_dist), 'src')
 
 const program = new Command()
 
@@ -42,6 +44,10 @@ const debug = program
   .action(async () => {
     await npm.load()
     validateLocation()
+
+    const srcFolder = 'src'
+    ensureFolderExists(srcFolder)
+    updateFile(reactor_src, srcFolder, 'renderer.tsx')
 
     const script = path.join(reactor_dist, 'main.dev.js')
     await printAndExec('electron', script, ...debug.args)

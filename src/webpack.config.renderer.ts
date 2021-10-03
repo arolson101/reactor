@@ -1,37 +1,50 @@
 import CspHtmlWebpackPlugin from 'csp-html-webpack-plugin'
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
+import fs from 'fs'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import InjectBodyPlugin from 'inject-body-webpack-plugin'
 import path from 'path'
-import fs from 'fs'
 import webpack from 'webpack'
+import ReactRefreshTypeScript from 'react-refresh-typescript'
 
 const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none' }): webpack.Configuration => {
   const pkg = JSON.parse(fs.readFileSync('package.json', { encoding: 'utf-8' }))
   const reactor_path = path.dirname(path.dirname(__filename))
 
+  const isDevelopment = mode === 'development'
+
   return {
     target: 'electron-renderer',
     entry: {
-      app: './src/index.ts',
-      renderer: {
-        dependOn: 'app',
-        import: path.join(reactor_path, 'src', 'renderer.tsx'),
-      },
+      renderer: ['./src/renderer.tsx'],
     },
 
     mode: mode,
-    devtool: mode == 'development' ? 'inline-source-map' : 'source-map',
+    devtool: isDevelopment ? 'inline-source-map' : 'source-map',
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
     },
     module: {
-      rules: [{ test: /\.tsx?$/, loader: 'ts-loader' }],
+      rules: [
+        {
+          test: /\.tsx?$/,
+          loader: 'ts-loader',
+          exclude: /node_modules/,
+          options: {
+            getCustomTransformers: () => ({
+              before: [isDevelopment && ReactRefreshTypeScript()].filter(Boolean),
+            }),
+            // disable type checker - we will use it in fork plugin
+            transpileOnly: true,
+          },
+        },
+      ],
     },
     context: process.cwd(),
     output: {
       filename: '[name].js',
       path: path.resolve(process.cwd(), 'build', 'dev'),
-      devtoolModuleFilenameTemplate: mode == 'development' ? '[absolute-resource-path]' : undefined,
+      devtoolModuleFilenameTemplate: isDevelopment ? '[absolute-resource-path]' : undefined,
     },
     optimization: {
       splitChunks: {
@@ -48,16 +61,20 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
     },
 
     plugins: [
+      new ForkTsCheckerWebpackPlugin(),
       new HtmlWebpackPlugin({
         title: `${pkg.productName || pkg.name} ${pkg.version}`,
       }),
       new InjectBodyPlugin({
         content: '<div id="root"></div>',
       }),
-      new CspHtmlWebpackPlugin({
-        'script-src': '',
-        'style-src': '',
-      }),
+      new CspHtmlWebpackPlugin(
+        {
+          'script-src': '',
+          'style-src': '',
+        },
+        { enabled: !isDevelopment },
+      ),
     ],
   }
 }
