@@ -2,10 +2,12 @@ import 'source-map-support/register'
 
 import { app, BrowserWindow, shell } from 'electron'
 import electronServe from 'electron-serve'
+import windowStateKeeper from 'electron-window-state'
 
 const loadURL = electronServe({ directory: '.' })
 
 async function createWindow() {
+  // install dev extensions
   if (process.env.NODE_ENV === 'development') {
     process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
@@ -18,10 +20,19 @@ async function createWindow() {
     await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
   }
 
+  // retreive window size
+  const mainWindowState = windowStateKeeper({
+    defaultWidth: 1000,
+    defaultHeight: 800,
+  })
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 1200,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
+
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -29,6 +40,10 @@ async function createWindow() {
     show: false,
   })
 
+  // save window size
+  mainWindowState.manage(mainWindow)
+
+  // show window
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
   })
@@ -43,6 +58,7 @@ async function createWindow() {
     shell.openExternal(url)
   })
 
+  // load html content
   if (process.env.NODE_ENV === 'development') {
     const { default: webpack } = await import('webpack')
     const { default: WebpackDevServer } = await import('webpack-dev-server')
