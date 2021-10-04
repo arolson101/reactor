@@ -1,6 +1,6 @@
 {
   "name": "@ar0/reactor",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "make electron apps, easily",
   "scripts": {
     "patch": "npm version patch && npm run build && npm publish",
