@@ -32,7 +32,6 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
         {
           test: /\.tsx?$/,
           loader: 'ts-loader',
-          exclude: /node_modules/,
           options: {
             getCustomTransformers: () => ({
               before: [isDevelopment && ReactRefreshTypeScript()].filter(Boolean),
