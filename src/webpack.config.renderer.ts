@@ -16,13 +16,16 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
   return {
     target: 'electron-renderer',
     entry: {
-      renderer: ['./src/renderer.tsx'],
+      renderer: path.join(reactor_path, 'src', 'renderer.tsx'),
     },
 
     mode: mode,
     devtool: isDevelopment ? 'inline-source-map' : 'source-map',
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
+      alias: {
+        '@app': path.resolve(process.cwd(), 'src'),
+      },
     },
     module: {
       rules: [
