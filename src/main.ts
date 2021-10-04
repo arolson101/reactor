@@ -1,3 +1,5 @@
+import 'source-map-support/register'
+
 import { app, BrowserWindow, shell } from 'electron'
 import electronServe from 'electron-serve'
 
