@@ -43,7 +43,7 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
     context: process.cwd(),
     output: {
       filename: '[name].js',
-      path: path.resolve(process.cwd(), 'build', 'dev'),
+      path: path.resolve(process.cwd(), 'build', isDevelopment ? 'dev' : 'prod'),
       devtoolModuleFilenameTemplate: isDevelopment ? '[absolute-resource-path]' : undefined,
     },
     optimization: {

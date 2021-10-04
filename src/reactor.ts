@@ -67,8 +67,6 @@ const build = program
 
     // get config
     const config = configFcn(null, { mode: 'production' })
-    config.output!.path = path.resolve(process.cwd(), buildFolder)
-
     const electronPackageJson = path.join(path.dirname(__non_webpack_require__.resolve('electron')), 'package.json')
     const ev = fs.readFileSync(electronPackageJson, { encoding: 'utf-8' })
     const electronVersion = JSON.parse(ev).version
