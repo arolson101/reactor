@@ -1,15 +1,17 @@
-import 'source-map-support/register'
-
+import capitalize from 'capitalize'
+import chalk from 'chalk'
 import { Command } from 'commander'
 import fs from 'fs'
-import chalk from 'chalk'
-import path from 'path'
+import Mustache from 'mustache'
 import npm from 'npm'
+import path from 'path'
+import 'source-map-support/register'
+import { isPresent } from 'ts-is-present'
 import util from 'util'
 import webpack from 'webpack'
+import pkg from '../package.json'
 import configFcn from './webpack.config.renderer'
 
-import pkg from '../package.json'
 const packageName = pkg.name as 'packageName'
 
 interface PackageJson {
@@ -30,6 +32,7 @@ const fail = (msg: string) => {
 const exec = util.promisify(npm.commands.exec)
 
 const reactor_dist = path.dirname(__filename)
+const reactor_tpl = path.join(path.dirname(reactor_dist), 'templates')
 
 const program = new Command()
 
@@ -45,6 +48,54 @@ const debug = program
 
     const script = path.join(reactor_dist, 'main.dev.js')
     await printAndExec('electron', script, ...debug.args)
+  })
+
+program
+  .command('state <add|remove> <name>')
+  .description('add a slice to the state')
+  .action((verb: string, name: string) => {
+    validateLocation()
+    const capName = capitalize(name, true)
+    const slicePath = path.join('src', 'state', `${name}Slice.ts`)
+    switch (verb) {
+      case 'add': {
+        ensureFolderExists(path.join('src', 'state'))
+        const sliceTemplate = fs.readFileSync(path.join(reactor_tpl, 'stateSlice.ts.mustache'), { encoding: 'utf-8' })
+        const code = Mustache.render(sliceTemplate, { name, capName })
+        fs.writeFileSync(slicePath, code, { encoding: 'utf-8' })
+        pass(`wrote ${slicePath}`)
+        break
+      }
+
+      case 'remove':
+      case 'rmv':
+      case 'del':
+      case 'delete': {
+        if (!fs.existsSync(slicePath)) {
+          fail(`${slicePath} not found`)
+        }
+        fs.unlinkSync(slicePath)
+        pass(`${slicePath} removed`)
+        break
+      }
+
+      case 'update':
+        break
+
+      default:
+        fail(`unknown state verb '${verb}'`)
+    }
+
+    const slices = fs
+      .readdirSync(path.join('src', 'state'))
+      .map((name) => /(.*)Slice.ts/.exec(name)?.at(1))
+      .filter(isPresent)
+
+    const indexTemplate = fs.readFileSync(path.join(reactor_tpl, 'state.ts.mustache'), { encoding: 'utf-8' })
+    const code = Mustache.render(indexTemplate, { slices })
+    const outputPath = path.join('src', 'state', `index.ts`)
+    fs.writeFileSync(outputPath, code, { encoding: 'utf-8' })
+    pass(`wrote ${outputPath}`)
   })
 
 const build = program

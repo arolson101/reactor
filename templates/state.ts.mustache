@@ -1,0 +1,18 @@
+import { getAppFunctions } from '@ar0/reactor'
+import { combineReducers } from '@reduxjs/toolkit'
+
+{{#slices}}
+import {{.}} from './{{.}}Slice'
+{{/slices}}
+
+export const rootReducer = combineReducers({
+{{#slices}}
+  {{.}},
+{{/slices}}
+})
+
+export const { useAppDispatch, useAppSelector } = getAppFunctions(rootReducer)
+
+{{#slices}}
+export * from './{{.}}Slice'
+{{/slices}}
