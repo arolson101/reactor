@@ -1,3 +1,5 @@
+import 'source-map-support/register'
+
 import capitalize from 'capitalize'
 import chalk from 'chalk'
 import { Command } from 'commander'
@@ -5,7 +7,6 @@ import fs from 'fs'
 import Mustache from 'mustache'
 import npm from 'npm'
 import path from 'path'
-import 'source-map-support/register'
 import { isPresent } from 'ts-is-present'
 import util from 'util'
 import webpack from 'webpack'
