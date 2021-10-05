@@ -26,6 +26,7 @@ const baseConfig: webpack.Configuration = {
     'webpack-dev-server': 'commonjs2 webpack-dev-server',
     'fork-ts-checker-webpack-plugin': 'commonjs2 fork-ts-checker-webpack-plugin',
     'react-refresh-typescript': 'commonjs2 react-refresh-typescript',
+    '@pmmmwh/react-refresh-webpack-plugin': 'commonjs2 @pmmmwh/react-refresh-webpack-plugin',
   },
 }
 

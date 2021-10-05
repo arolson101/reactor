@@ -1,11 +1,12 @@
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 import CspHtmlWebpackPlugin from 'csp-html-webpack-plugin'
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 import fs from 'fs'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import InjectBodyPlugin from 'inject-body-webpack-plugin'
 import path from 'path'
-import webpack from 'webpack'
 import ReactRefreshTypeScript from 'react-refresh-typescript'
+import webpack from 'webpack'
 
 const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none' }): webpack.Configuration => {
   const pkg = JSON.parse(fs.readFileSync('package.json', { encoding: 'utf-8' }))
@@ -19,7 +20,7 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
       renderer: path.join(reactor_path, 'src', 'renderer.tsx'),
     },
 
-    mode: mode,
+    mode,
     devtool: isDevelopment ? 'inline-source-map' : 'source-map',
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
@@ -70,13 +71,18 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
       new InjectBodyPlugin({
         content: '<div id="root"></div>',
       }),
-      new CspHtmlWebpackPlugin(
-        {
-          'script-src': '',
-          'style-src': '',
-        },
-        { enabled: !isDevelopment },
-      ),
+      ...(isDevelopment
+        ? [
+            // development-only plugins
+            new ReactRefreshWebpackPlugin(),
+          ]
+        : [
+            // production-only plugins
+            new CspHtmlWebpackPlugin({
+              'script-src': '',
+              'style-src': '',
+            }),
+          ]),
     ],
   }
 }
