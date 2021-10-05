@@ -41,6 +41,10 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
             transpileOnly: true,
           },
         },
+        {
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader'],
+        },
       ],
     },
     context: process.cwd(),
