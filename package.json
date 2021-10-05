@@ -12,8 +12,10 @@
   "bin": {
     "reactor": "dist/reactor.js"
   },
+  "main": "src/index.ts",
   "dependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.1",
+    "@reduxjs/toolkit": "^1.6.1",
     "@types/csp-html-webpack-plugin": "^3.0.2",
     "@types/react": "^17.0.26",
     "@types/react-dom": "^17.0.9",
@@ -27,6 +29,7 @@
     "npm": "^7.24.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-refresh": "^0.10.0",
     "react-refresh-typescript": "^2.0.2",
     "ts-loader": "^9.2.6",
     "tslib": "^2.3.1",
@@ -38,6 +41,7 @@
   "devDependencies": {
     "@types/electron-window-state": "^5.0.0",
     "@types/npm": "^7.19.0",
+    "@types/react-redux": "^7.1.18",
     "@types/source-map-support": "^0.5.4",
     "@types/webpack-env": "^1.16.2",
     "chalk": "^4.1.2",
@@ -47,6 +51,7 @@
     "electron-window-state": "^5.0.3",
     "nodemon": "^2.0.13",
     "prettier": "^2.4.1",
+    "react-redux": "^7.2.5",
     "source-map-support": "^0.5.20",
     "ts-node": "^10.2.1",
     "webpack-cli": "^4.8.0"

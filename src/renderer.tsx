@@ -1,20 +1,36 @@
+import { configureStore, Reducer } from '@reduxjs/toolkit'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
 
 interface AppExports {
   App: React.ComponentType
+  rootReducer: Reducer
 }
 
-const render = () => {
-  const { App } = require('@app') as AppExports
-  ReactDOM.render(<App />, document.getElementById('root'))
+const { App, rootReducer } = require('@app') as AppExports
+
+const store =
+  rootReducer &&
+  configureStore({
+    reducer: rootReducer!,
+  })
+
+const root = document.getElementById('root')
+if (store) {
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    root,
+  )
+} else {
+  ReactDOM.render(<App />, root)
 }
 
-render()
-
-if (module.hot) {
-  module.hot.accept('@app', function () {
-    console.log('Accepting the updated module!')
-    render()
+if (process.env.NODE_ENV !== 'production' && module.hot) {
+  module.hot.accept('@app', async function () {
+    const { rootReducer } = require('@app') as AppExports
+    store?.replaceReducer(rootReducer!)
   })
 }
