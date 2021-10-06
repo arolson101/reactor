@@ -1,7 +1,7 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import { combineReducers, configureStore, AnyAction } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 {{#slices}}
-import {{.}}, { {{.}}Sanitizer } from './{{.}}Slice'
+import {{.}}, { {{.}}StateSanitizer, {{.}}ActionSanitizer } from './{{.}}Slice'
 {{/slices}}
 
 export const rootReducer = combineReducers({
@@ -12,9 +12,16 @@ export const rootReducer = combineReducers({
 
 export const stateSanitizer = (state: RootState): object => ({
 {{#slices}}
-  {{.}}: {{.}}Sanitizer(state.{{.}}),
+  {{.}}: {{.}}StateSanitizer(state.{{.}}),
 {{/slices}}
 })
+
+export const actionSanitizer = (action: AnyAction): AnyAction => {
+{{#slices}}
+  action = {{.}}ActionSanitizer(action)
+{{/slices}}
+  return action
+}
 
 const createStore = () => configureStore({ reducer: rootReducer })
 export type Store = ReturnType<typeof createStore>

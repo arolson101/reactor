@@ -33,5 +33,8 @@ export const { increment, decrement, incrementByAmount } = {{name}}Slice.actions
 
 export default {{name}}Slice.reducer
 
-// use this function to customize the state that is displayed in the redux devtool
-export const {{name}}Sanitizer = (state: {{capName}}State): object => state
+// use this function to customize the state that is displayed in the redux devtool, e.g. to remove large objects
+export const {{name}}StateSanitizer = (state: {{capName}}State): object => state
+
+// use this function to customize actions that are displayed in the redux devtool, e.g. to remove large objects
+export const {{name}}ActionSanitizer = (action: AnyAction): object => action
