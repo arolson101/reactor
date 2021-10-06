@@ -99,6 +99,44 @@ program
     pass(`wrote ${outputPath}`)
   })
 
+program
+  .command('component <add|remove> <name>')
+  .description('add a component')
+  .action((verb: string, name: string) => {
+    validateLocation()
+    const componentPath = path.join('src', 'components', `${name}.tsx`)
+    switch (verb) {
+      case 'add': {
+        ensureFolderExists(path.join('src', 'components'))
+        const componentTemplate = fs.readFileSync(path.join(reactor_tpl, 'component.tsx.mustache'), {
+          encoding: 'utf-8',
+        })
+        const code = Mustache.render(componentTemplate, { name })
+        fs.writeFileSync(componentPath, code, { encoding: 'utf-8' })
+        pass(`wrote ${componentPath}`)
+        break
+      }
+
+      case 'remove':
+      case 'rmv':
+      case 'del':
+      case 'delete': {
+        if (!fs.existsSync(componentPath)) {
+          fail(`${componentPath} not found`)
+        }
+        fs.unlinkSync(componentPath)
+        pass(`${componentPath} removed`)
+        break
+      }
+
+      case 'update':
+        break
+
+      default:
+        fail(`unknown state verb '${verb}'`)
+    }
+  })
+
 const build = program
   .command('build')
   .allowUnknownOption()
