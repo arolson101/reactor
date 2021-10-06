@@ -6,14 +6,18 @@ import { Provider } from 'react-redux'
 interface AppExports {
   App: React.ComponentType
   rootReducer: Reducer
+  stateSanitizer?: <S>(state: S, index: number) => S
 }
 
-const { App, rootReducer } = require('@app') as AppExports
+const { App, rootReducer, stateSanitizer } = require('@app') as AppExports
 
 const store =
   rootReducer &&
   configureStore({
     reducer: rootReducer!,
+    devTools: process.env.NODE_ENV === 'development' && {
+      stateSanitizer,
+    },
   })
 
 const root = document.getElementById('root')

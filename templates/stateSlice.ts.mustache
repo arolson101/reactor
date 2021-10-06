@@ -32,3 +32,6 @@ export const {{name}}Slice = createSlice({
 export const { increment, decrement, incrementByAmount } = {{name}}Slice.actions
 
 export default {{name}}Slice.reducer
+
+// use this function to customize the state that is displayed in the redux devtool
+export const {{name}}Sanitizer = (state: {{capName}}State): object => state
