@@ -1,12 +1,30 @@
-import { createSlice, PayloadAction, AnyAction } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, PayloadAction, AnyAction } from '@reduxjs/toolkit'
+import type { RootState } from './index'
 
 export interface {{capName}}State {
   value: number
+  thunkResult: number
+  thunkInProgress: boolean
 }
 
 const initialState: {{capName}}State = {
   value: 0,
+  thunkResult: 0,
+  thunkInProgress: false,
 }
+
+export const {{name}}Thunk = createAsyncThunk(
+  '{{name}}/{{name}}Thunk',
+  async (params, { dispatch }) => {
+    return 1
+  },
+  {
+    condition: (params, { getState, extra }) => {
+      const { {{name}} } = getState() as RootState
+      return !{{name}}.thunkInProgress
+    },
+  },
+)
 
 export const {{name}}Slice = createSlice({
   name: '{{name}}',
@@ -25,6 +43,20 @@ export const {{name}}Slice = createSlice({
     incrementByAmount: (state, action: PayloadAction<number>) => {
       state.value += action.payload
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase({{name}}Thunk.pending, (state, action) => {
+      state.thunkInProgress = true
+    })
+
+    builder.addCase({{name}}Thunk.fulfilled, (state, action) => {
+      state.thunkInProgress = false
+      state.thunkResult = action.payload
+    })
+
+    builder.addCase({{name}}Thunk.rejected, (state, action) => {
+      state.thunkInProgress = false
+    })
   },
 })
 
