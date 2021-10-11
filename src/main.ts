@@ -3,6 +3,9 @@ import 'source-map-support/register'
 import { app, BrowserWindow, shell } from 'electron'
 import electronServe from 'electron-serve'
 import windowStateKeeper from 'electron-window-state'
+import { initialize as electronRemoteInitialize } from '@electron/remote/main'
+
+electronRemoteInitialize()
 
 const loadURL = electronServe({ directory: '.' })
 

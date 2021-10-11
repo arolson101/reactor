@@ -27,6 +27,7 @@ const baseConfig: webpack.Configuration = {
     'fork-ts-checker-webpack-plugin': 'commonjs2 fork-ts-checker-webpack-plugin',
     'react-refresh-typescript': 'commonjs2 react-refresh-typescript',
     '@pmmmwh/react-refresh-webpack-plugin': 'commonjs2 @pmmmwh/react-refresh-webpack-plugin',
+    '@electron/remote': 'commonjs2 @electron/remote',
   },
 }
 
