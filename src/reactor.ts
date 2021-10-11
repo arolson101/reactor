@@ -39,6 +39,33 @@ const program = new Command()
 
 program.version(pkg.version)
 
+program
+  .command('init')
+  .description(`initialize folder to use ${packageName}`)
+  .action(async () => {
+    await npm.load()
+
+    await printAndExec('npm', 'install', '--save-dev', packageName)
+
+    const targetPackage = JSON.parse(fs.readFileSync('package.json', { encoding: 'utf-8' })).name
+
+    const installTemplateIfNotExists = (templateName: string, dest: string) => {
+      const contents = renderTemplate(templateName, { targetPackage, packageName })
+      if (!fs.existsSync(dest)) {
+        fs.writeFileSync(dest, contents, { encoding: 'utf-8' })
+        pass(`wrote ${dest}`)
+      }
+    }
+
+    installTemplateIfNotExists('gitignore.mustache', '.gitignore')
+    installTemplateIfNotExists('prettierrc.mustache', '.prettierrc')
+    installTemplateIfNotExists('editorconfig.mustache', '.editorconfig')
+    installTemplateIfNotExists('tsconfig.json.mustache', 'tsconfig.json')
+    ensureFolderExists('src')
+    installTemplateIfNotExists('index.simple.ts.mustache', path.join('src', 'index.ts'))
+    installTemplateIfNotExists('App.tsx.mustache', path.join('src', 'App.tsx'))
+  })
+
 const debug = program
   .command('debug')
   .allowUnknownOption()
@@ -61,9 +88,8 @@ program
     switch (verb) {
       case 'add': {
         ensureFolderExists(path.join('src', 'state'))
-        const sliceTemplate = fs.readFileSync(path.join(reactor_tpl, 'stateSlice.ts.mustache'), { encoding: 'utf-8' })
-        const code = Mustache.render(sliceTemplate, { name, capName })
-        fs.writeFileSync(slicePath, code, { encoding: 'utf-8' })
+        const stateSlice = renderTemplate('stateSlice.ts.mustache', { name, capName })
+        fs.writeFileSync(slicePath, stateSlice, { encoding: 'utf-8' })
         pass(`wrote ${slicePath}`)
         break
       }
@@ -92,11 +118,15 @@ program
       .map((name) => /(.*)Slice.ts/.exec(name)?.at(1))
       .filter(isPresent)
 
-    const indexTemplate = fs.readFileSync(path.join(reactor_tpl, 'state.ts.mustache'), { encoding: 'utf-8' })
-    const code = Mustache.render(indexTemplate, { slices })
-    const outputPath = path.join('src', 'state', `index.ts`)
-    fs.writeFileSync(outputPath, code, { encoding: 'utf-8' })
-    pass(`wrote ${outputPath}`)
+    const index = renderTemplate('state.ts.mustache', { slices })
+    const indexPath = path.join('src', 'state', `index.ts`)
+    fs.writeFileSync(indexPath, index, { encoding: 'utf-8' })
+    pass(`wrote ${indexPath}`)
+
+    const appIndex = renderTemplate('index.ts.mustache', { slices })
+    const appIndexPath = path.join('src', `index.ts`)
+    fs.writeFileSync(appIndexPath, appIndex, { encoding: 'utf-8' })
+    pass(`wrote ${appIndexPath}`)
   })
 
 program
@@ -108,11 +138,8 @@ program
     switch (verb) {
       case 'add': {
         ensureFolderExists(path.join('src', 'components'))
-        const componentTemplate = fs.readFileSync(path.join(reactor_tpl, 'component.tsx.mustache'), {
-          encoding: 'utf-8',
-        })
-        const code = Mustache.render(componentTemplate, { name })
-        fs.writeFileSync(componentPath, code, { encoding: 'utf-8' })
+        const component = renderTemplate('component.tsx.mustache', { name })
+        fs.writeFileSync(componentPath, component, { encoding: 'utf-8' })
         pass(`wrote ${componentPath}`)
         break
       }
@@ -206,6 +233,11 @@ const build = program
       ...build.args,
     )
   })
+
+const renderTemplate = (templateName: string, partials?: Record<string, string | string[]>) => {
+  const templatePath = fs.readFileSync(path.join(reactor_tpl, templateName), { encoding: 'utf-8' })
+  return Mustache.render(templatePath, partials)
+}
 
 const validateLocation = () => {
   if (!fs.existsSync('package.json')) {
