@@ -3,9 +3,9 @@ import 'source-map-support/register'
 import { app, BrowserWindow, shell } from 'electron'
 import electronServe from 'electron-serve'
 import windowStateKeeper from 'electron-window-state'
-import { initialize as electronRemoteInitialize } from '@electron/remote/main'
+import electronRemote from '@electron/remote/main'
 
-electronRemoteInitialize()
+electronRemote.initialize()
 
 const loadURL = electronServe({ directory: '.' })
 
@@ -42,6 +42,9 @@ async function createWindow() {
     },
     show: false,
   })
+
+  // https://github.com/electron/remote
+  electronRemote.enable(mainWindow.webContents)
 
   // save window size
   mainWindowState.manage(mainWindow)
