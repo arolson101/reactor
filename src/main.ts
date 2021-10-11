@@ -3,7 +3,7 @@ import 'source-map-support/register'
 import { app, BrowserWindow, shell } from 'electron'
 import electronServe from 'electron-serve'
 import windowStateKeeper from 'electron-window-state'
-import electronRemote from '@electron/remote/main'
+import * as electronRemote from '@electron/remote/main'
 
 electronRemote.initialize()
 
