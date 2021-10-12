@@ -14,6 +14,11 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
 
   const isDevelopment = mode === 'development'
 
+  const externals: Record<string, string> = {}
+  for (const dependency in pkg.dependencies) {
+    externals[dependency] = `commonjs2 ${dependency}`
+  }
+
   return {
     target: 'electron-renderer',
     entry: {
@@ -53,6 +58,7 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
       path: path.resolve(process.cwd(), 'build', isDevelopment ? 'dev' : 'prod'),
       devtoolModuleFilenameTemplate: isDevelopment ? '[absolute-resource-path]' : undefined,
     },
+    externals,
     optimization: {
       splitChunks: {
         chunks: 'all',
