@@ -220,8 +220,14 @@ const build = program
       author: pkg.author,
       license: pkg.license,
       main: 'main.js',
+      dependencies: pkg.dependencies || {},
     }
     fs.writeFileSync(path.join(buildFolder, 'package.json'), JSON.stringify(newpkg, null, '  '))
+
+    const cwd = process.cwd()
+    process.chdir(buildFolder)
+    await printAndExec('npm', 'install')
+    process.chdir(cwd)
 
     log(chalk.blue('packaging app'))
     await printAndExec(

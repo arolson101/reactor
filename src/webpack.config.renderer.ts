@@ -2,8 +2,10 @@ import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 import CspHtmlWebpackPlugin from 'csp-html-webpack-plugin'
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 import fs from 'fs'
+import HTMLInlineCSSWebpackPlugin from 'html-inline-css-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import InjectBodyPlugin from 'inject-body-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import path from 'path'
 import ReactRefreshTypeScript from 'react-refresh-typescript'
 import webpack from 'webpack'
@@ -13,6 +15,7 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
   const reactor_path = path.dirname(path.dirname(__filename))
 
   const isDevelopment = mode === 'development'
+  const isProduction = !isDevelopment
 
   const externals: Record<string, string> = {}
   for (const dependency in pkg.dependencies) {
@@ -48,7 +51,10 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
         },
         {
           test: /\.css$/i,
-          use: ['style-loader', 'css-loader'],
+          use: [
+            isDevelopment ? { loader: 'style-loader' } : MiniCssExtractPlugin.loader,
+            { loader: 'css-loader', options: { sourceMap: true } },
+          ],
         },
       ],
     },
@@ -74,26 +80,22 @@ const config = (env: any, { mode }: { mode: 'development' | 'production' | 'none
     },
 
     plugins: [
+      isProduction && new MiniCssExtractPlugin(),
       new ForkTsCheckerWebpackPlugin(),
       new HtmlWebpackPlugin({
         title: `${pkg.productName || pkg.name} ${pkg.version}`,
       }),
+      isProduction && new HTMLInlineCSSWebpackPlugin(),
       new InjectBodyPlugin({
         content: '<div id="root"></div>',
       }),
-      ...(isDevelopment
-        ? [
-            // development-only plugins
-            new ReactRefreshWebpackPlugin(),
-          ]
-        : [
-            // production-only plugins
-            new CspHtmlWebpackPlugin({
-              'script-src': '',
-              'style-src': '',
-            }),
-          ]),
-    ],
+      isDevelopment && new ReactRefreshWebpackPlugin(),
+      isProduction &&
+        new CspHtmlWebpackPlugin({
+          'script-src': '',
+          'style-src': '',
+        }),
+    ].filter(Boolean) as webpack.WebpackPluginInstance[],
   }
 }
 
